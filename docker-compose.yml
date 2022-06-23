@@ -1,0 +1,41 @@
+version: "3"
+
+services:
+  redis:
+    image: redis:latest
+    restart: always
+
+  db:
+    image: mongo:latest
+    restart: always
+    volumes:
+      - screeps_mongo:/data/db
+
+  screeps:
+    image: registry.demannu.com/demannu/screeps_docker:master
+    depends_on:
+      - db
+      - redis
+    restart: always
+    ports:
+      - "21025:21025"
+    environment:
+      STEAM_API_KEY: <secretKey>
+      SCREEPS_PORT: 21025
+      SCREEPS_HOST: 0.0.0.0
+      SCREEPS_PASS: secretPass
+      SCREEPS_CLI_PORT: 21026
+      SCREEPS_CLI_HOST: localhost
+
+    volumes:
+      - ./config/mods.json:/world/mods.json
+      - ./config/config.yml:/world/config.yml
+      - screeps_logs:/world/logs
+      - screeps_assets:/world/assets
+      - screeps_modules:/world/node_modules
+
+volumes:
+  screeps_mongo:
+  screeps_logs:
+  screeps_assets:
+  screeps_modules:
